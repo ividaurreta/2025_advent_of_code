@@ -1,7 +1,6 @@
 import re
 
-min_val = 0
-max_val = 99
+# Link to challenge: https://adventofcode.com/2025/day/1
 
 
 # Part 1
