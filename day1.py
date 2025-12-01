@@ -65,7 +65,7 @@ def solve_puzzle(instructions: list[str]) -> int:
     return result
 
 
-fh = open("input.txt")
+fh = open("inputs/input_1.txt")
 operations = []
 for op in fh:
     operations.append(op.strip())

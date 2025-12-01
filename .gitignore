@@ -1,0 +1,3 @@
+
+## Ignore files in the inputs folder. These files can be obtained from the Advent of Code website.
+inputs/*
