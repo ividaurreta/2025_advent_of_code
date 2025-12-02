@@ -1,47 +1,58 @@
+import re
+
+
 def is_silly_number(number: str) -> bool:
     """
-    Determine if the given number is silly.
+    Determine if the given number is silly where X = YY
+
+    I already removed all odd length numbers because they can never
+    be silly. After that, checking if a number is silly is just a
+    matter of looking for the half point and comparing both halves.
     """
-    # Don't really need to do integer division since it will always be even
-    # because I discard uneven numbers but still keeping it for casting purposes
     half_point = len(number) // 2
 
     return number[:half_point] == number[half_point:]
 
 
-def is_silly_number_with_queues(number: str) -> bool:
+def is_silly_number_with_incremental_multiplier(number: str) -> bool:
     """
-    Similar to is_silly_number but now the number can be repeated multiple times
-    So, we keep two queues:
-    | 2 |
-    | 1 | ==> Queue 1: Contains the number we believe is getting repeated
-    |_1_|
+    For any string of length X, if it's a silly number, meaning that it has
+    a sequence of numbers repeated _at least_ twice, then it will be at the
+    repeated number will have at most length X/2.
 
-    | 2 |
-    |.1 | ==> Queue 2: Contains the repetitions and updates Queue1 if necessary
-    |_1_|
+    Knowing that, because i'm dumb as rocks we will just brute force checking
+    all substrings until we find the adequate substring or we run out of options
+
     """
 
-    queue_1: list[str] = []
-    i_q1 = 0
-    queue_2: list[str] = []
-    i_q2 = 0
+    index = 1
 
-    for digit in number:
-        len_q1 = len(queue_1)
-        if len_q1 == 0:
-            queue_1.append(digit)
-        elif digit == queue_1[i_q1 % len_q1]:
-            queue_2.append(digit)
-            i_q1 += 1
-        else:
-            queue_2.append(digit)
-            queue_1 = queue_1 + queue_2
-            queue_2 = []
-            i_q1 = 0
+    while index <= len(number) // 2:
+        elem = number[:index]
+        if (len(number) % index) == 0:
+            multiplier = len(number) // index
+            if elem * multiplier == number:
+                return True
 
-    # Fails if the whole number is in queue_1
-    return len(queue_1) <= len(queue_2)
+        index += 1
+
+    return False
+
+
+def is_silly_number_with_regex(number: str, part1: bool) -> bool:
+    """
+    Feels like cheating, but i freaking love RegEx
+    Run it on https://regexr.com/ for a better explanation:
+
+    ^ => Start of line
+    (\\d+) => Group Match, a number with 1 or more digits. (Note: I'm escaping the escape bc it throws a warning if not for some reason)
+    \1+    => The same group match we got gets repeated one or more time (we remove the + on part 1 for obvious reasons)
+    $ => end of line
+    """
+    if part1:
+        return re.match(r"^(\d+)\1$", number)
+
+    return re.match(r"^(\d+)\1+$", number)
 
 
 def solve_puzzle_part1(ranges: list[str]) -> int:
@@ -52,10 +63,8 @@ def solve_puzzle_part1(ranges: list[str]) -> int:
             # Numbers with odd length are not silly
             continue
         for i in range(int(start), int(end) + 1):
-            if is_silly_number(str(i)):
+            if is_silly_number_with_regex(str(i), True):
                 acum += i
-
-    print("Total: " + str(acum))
 
     return acum
 
@@ -65,24 +74,25 @@ def solve_puzzle_part2(ranges: list[str]) -> int:
     for r in ranges:
         start, end = r.split("-")
         for i in range(int(start), int(end) + 1):
-            if is_silly_number_with_queues(str(i)):
+            if is_silly_number_with_regex(str(i), False):
                 acum += i
-
-    print("Total: " + str(acum))
 
     return acum
 
 
 if __name__ == "__main__":
 
-    # fh = open("inputs/input_2.txt")
+    fh = open("inputs/input_2.txt")
 
-    # all_ranges: str = fh.readline()
+    all_ranges: str = fh.readline()
 
-    # ranges: list[str] = all_ranges.split(",")
+    ranges: list[str] = all_ranges.split(",")
 
-    # solve_puzzle_part2(ranges)
+    solution_part1 = solve_puzzle_part1(ranges)
+    solution_part2 = solve_puzzle_part2(ranges)
 
-    # fh.close()
-
-    print(is_silly_number_with_queues("1188511885"))
+    print("==================================")
+    print(f"Solution Part 1: {solution_part1}")
+    print(f"Solution Part 2: {solution_part2}")
+    print("==================================")
+    fh.close()
