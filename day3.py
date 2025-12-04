@@ -61,8 +61,6 @@ if __name__ == "__main__":
 
     fh.close()
 
-    # ret = solve_puzzle(operations)
-
     sol1, sol2 = solve_puzzle(banks)
     print("====================================")
     print("Part 1 solution: ", sol1)
